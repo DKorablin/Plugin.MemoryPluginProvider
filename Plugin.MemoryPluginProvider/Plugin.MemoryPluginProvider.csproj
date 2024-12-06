@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<OutputType>Library</OutputType>
+		<RootNamespace>Plugin.MemoryPluginProvider</RootNamespace>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+		<AssemblyTitle>Plugin.MemoryPluginProvider</AssemblyTitle>
+		<Company>Danila Korablin</Company>
+		<Product>Plugin loader from file system to process memory</Product>
+		<Copyright>Copyright © Danila Korablin 2011-2020</Copyright>
+		<Configuration>Debug</Configuration>
+		<AssemblyVersion>1.1.*</AssemblyVersion>
+		<FileVersion>1.1.0.0</FileVersion>
+		<Deterministic>false</Deterministic>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Reference Include="SAL.Flatbed">
+			<HintPath>..\..\SAL\bin\SAL.Flatbed.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Include="..\PluginProviders.Shared\FilePluginArgs.cs">
+			<Link>FilePluginArgs.cs</Link>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="SAL.Flatbed" Version="1.2.9" />
+	  <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+	</ItemGroup>
+</Project>
