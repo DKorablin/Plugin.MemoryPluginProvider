@@ -65,13 +65,17 @@ namespace Plugin.MemoryPluginProvider
 			foreach(String pluginPath in this.Args.PluginPath)
 				if(Directory.Exists(pluginPath))
 				{
-					foreach(String file in Directory.GetFiles(pluginPath, "*.dll"))
-						this.LoadPlugin(file, ConnectMode.Startup);
+					foreach(String file in Directory.GetFiles(pluginPath, "*.*"))
+						if(FilePluginArgs.CheckFileExtension(file))
+							this.LoadPlugin(file, ConnectMode.Startup);
 
-					FileSystemWatcher watcher = new FileSystemWatcher(pluginPath, "*.dll");
-					watcher.Changed += new FileSystemEventHandler(Monitor_Changed);
-					watcher.EnableRaisingEvents = true;
-					this.Monitors.Add(watcher);
+					foreach(String extension in FilePluginArgs.LibraryExtensions)
+					{
+						FileSystemWatcher watcher = new FileSystemWatcher(pluginPath, "*" + extension);
+						watcher.Changed += new FileSystemEventHandler(Monitor_Changed);
+						watcher.EnableRaisingEvents = true;
+						this.Monitors.Add(watcher);
+					}
 				}
 		}
 
@@ -84,22 +88,23 @@ namespace Plugin.MemoryPluginProvider
 				AssemblyName targetName = new AssemblyName(assemblyName);
 				foreach(String pluginPath in this.Args.PluginPath)
 					if(Directory.Exists(pluginPath))
-						foreach(String file in Directory.GetFiles(pluginPath, "*.dll"))
-							try
-							{
-								AssemblyName name = AssemblyName.GetAssemblyName(file);
-								if(name.FullName == targetName.FullName)
+						foreach(String file in Directory.GetFiles(pluginPath, "*.*"))
+							if(FilePluginArgs.CheckFileExtension(file))
+								try
 								{
-									Byte[] fileBytes = File.ReadAllBytes(file);//TODO: Reference DLL из оперативной памяти не цепляются!
-									Assembly assembly = Assembly.Load(fileBytes);
+									AssemblyName name = AssemblyName.GetAssemblyName(file);
+									if(name.FullName == targetName.FullName)
+									{
+										Byte[] fileBytes = File.ReadAllBytes(file);//TODO: Reference DLL из оперативной памяти не цепляются!
+										Assembly assembly = Assembly.Load(fileBytes);
 
-									this.Assemblies.Add(assemblyName, assembly);
-									return assembly;
+										this.Assemblies.Add(assemblyName, assembly);
+										return assembly;
+									}
+								} catch(Exception)//Пропускаем все ошибки. Мы Resolve'им библиотеку, а не разбираемся с плагинами
+								{
+									continue;
 								}
-							} catch(Exception)//Пропускаем все ошибки. Мы Resolve'им библиотеку, а не разбираемся с плагинами
-							{
-								continue;
-							}
 			}
 
 			this.Trace.TraceEvent(TraceEventType.Warning, 5, "The provider {2} is unable to locate the assembly {0} in the path {1}", assemblyName, String.Join(",", this.Args.PluginPath), this.GetType());
