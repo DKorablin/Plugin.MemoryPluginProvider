@@ -7,7 +7,7 @@
 		<AssemblyTitle>Plugin.MemoryPluginProvider</AssemblyTitle>
 		<Company>Danila Korablin</Company>
 		<Product>Plugin loader from file system to process memory</Product>
-		<Copyright>Copyright © Danila Korablin 2011-2020</Copyright>
+		<Copyright>Copyright © Danila Korablin 2011-2024</Copyright>
 		<Configuration>Debug</Configuration>
 		<AssemblyVersion>1.1.*</AssemblyVersion>
 		<FileVersion>1.1.0.0</FileVersion>
@@ -26,7 +26,7 @@
 		</Compile>
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="SAL.Flatbed" Version="1.2.9" />
+	  <PackageReference Include="SAL.Flatbed" Version="1.2.10" />
 	  <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
 	</ItemGroup>
 </Project>
