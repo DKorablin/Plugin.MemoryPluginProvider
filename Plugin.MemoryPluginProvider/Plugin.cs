@@ -18,14 +18,14 @@ namespace Plugin.MemoryPluginProvider
 
 		internal FilePluginArgs Args { get; set; }
 
-		/// <summary>Массив ранее загруженных сборок</summary>
-		/// <remarks>Если сборки читаются в памяти, то необходимо хранить кеш сборок</remarks>
+		/// <summary>Array of previously loaded assemblies</summary>
+		/// <remarks>If assemblies are read in memory, a cache of assemblies must be maintained.</remarks>
 		private Dictionary<String, Assembly> Assemblies { get; set; }
 
-		/// <summary>Монитор за появлением новых плагинов</summary>
+		/// <summary>Monitor for new plugins</summary>
 		private List<FileSystemWatcher> Monitors { get; set; }
 
-		/// <summary>Родительский провайдер плагинов</summary>
+		/// <summary>Parent plugin provider</summary>
 		IPluginProvider IPluginProvider.ParentProvider { get; set; }
 
 		public Plugin(IHost host)
@@ -43,16 +43,14 @@ namespace Plugin.MemoryPluginProvider
 		{
 			if(mode == DisconnectMode.UserClosed)
 				throw new NotSupportedException("You can't unload plugin provider plugin");
-			else
+
+			if(this.Monitors != null)
 			{
-				if(this.Monitors != null)
-				{
-					foreach(FileSystemWatcher monitor in this.Monitors)
-						monitor.Dispose();
-					this.Monitors = null;
-				}
-				return true;
+				foreach(FileSystemWatcher monitor in this.Monitors)
+					monitor.Dispose();
+				this.Monitors = null;
 			}
+			return true;
 		}
 
 		void IPluginProvider.LoadPlugins()
@@ -95,13 +93,13 @@ namespace Plugin.MemoryPluginProvider
 									AssemblyName name = AssemblyName.GetAssemblyName(file);
 									if(name.FullName == targetName.FullName)
 									{
-										Byte[] fileBytes = File.ReadAllBytes(file);//TODO: Reference DLL из оперативной памяти не цепляются!
+										Byte[] fileBytes = File.ReadAllBytes(file);//TODO: Reference DLLs are not loaded from RAM!
 										Assembly assembly = Assembly.Load(fileBytes);
 
 										this.Assemblies.Add(assemblyName, assembly);
 										return assembly;
 									}
-								} catch(Exception)//Пропускаем все ошибки. Мы Resolve'им библиотеку, а не разбираемся с плагинами
+								} catch(Exception)//We skip all errors. We resolve the library, not deal with plugins.
 								{
 									continue;
 								}
@@ -123,7 +121,7 @@ namespace Plugin.MemoryPluginProvider
 				//assembly.ModuleResolve += new ModuleResolveEventHandler(Assembly_ModuleResolve);
 
 				this.Host.Plugins.LoadPlugin(assembly, filePath, ConnectMode.Startup);
-			} catch(BadImageFormatException exc)//Ошибка загрузки плагина. Можно почитать заголовок загружаемого файла, но мне влом
+			} catch(BadImageFormatException exc)//Plugin loading error. I could read the title of the file being loaded, but I'm too lazy.
 			{
 				exc.Data.Add("Library", filePath);
 				this.Trace.TraceData(TraceEventType.Error, 1, exc);
@@ -134,9 +132,9 @@ namespace Plugin.MemoryPluginProvider
 			}
 		}
 
-		/// <summary>Доступен новый файл для проверки</summary>
-		/// <param name="sender">Отправитель события</param>
-		/// <param name="e">Аргументы события</param>
+		/// <summary>New file available for review</summary>
+		/// <param name="sender">Event sender</param>
+		/// <param name="e">Event arguments</param>
 		private void Monitor_Changed(Object sender, FileSystemEventArgs e)
 		{
 			if(e.ChangeType == WatcherChangeTypes.Changed)
