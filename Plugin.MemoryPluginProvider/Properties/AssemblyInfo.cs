@@ -5,4 +5,3 @@ using System.Runtime.InteropServices;
 [assembly: System.CLSCompliant(true)]
 
 [assembly: AssemblyDescription("This plugin provider will load assemblies to memory and after that will load them to current AppDomain")]
-[assembly: AssemblyCopyright("Copyright © Danila Korablin 2011-2025")]

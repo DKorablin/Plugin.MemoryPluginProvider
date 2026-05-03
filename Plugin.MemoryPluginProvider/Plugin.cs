@@ -10,11 +10,9 @@ namespace Plugin.MemoryPluginProvider
 {
 	public class Plugin : IPluginProvider
 	{
-		private TraceSource _trace;
-
 		private IHost Host { get; }
 
-		private TraceSource Trace { get => this._trace ?? (this._trace = Plugin.CreateTraceSource<Plugin>()); }
+		private ITraceSource Trace { get; }
 
 		internal FilePluginArgs Args { get; set; }
 
@@ -28,8 +26,11 @@ namespace Plugin.MemoryPluginProvider
 		/// <summary>Parent plugin provider</summary>
 		IPluginProvider IPluginProvider.ParentProvider { get; set; }
 
-		public Plugin(IHost host)
-			=> this.Host = host ?? throw new ArgumentNullException(nameof(host));
+		public Plugin(IHost host, ITraceSource trace)
+		{
+			this.Host = host ?? throw new ArgumentNullException(nameof(host));
+			this.Trace = trace ?? throw new ArgumentNullException(nameof(trace));
+		}
 
 		Boolean IPlugin.OnConnection(ConnectMode mode)
 		{
@@ -139,15 +140,6 @@ namespace Plugin.MemoryPluginProvider
 		{
 			if(e.ChangeType == WatcherChangeTypes.Changed)
 				this.LoadPlugin(e.FullPath, ConnectMode.AfterStartup);
-		}
-
-		private static TraceSource CreateTraceSource<T>(String name = null) where T : IPlugin
-		{
-			TraceSource result = new TraceSource(typeof(T).Assembly.GetName().Name + name);
-			result.Switch.Level = SourceLevels.All;
-			result.Listeners.Remove("Default");
-			result.Listeners.AddRange(System.Diagnostics.Trace.Listeners);
-			return result;
 		}
 	}
 }
