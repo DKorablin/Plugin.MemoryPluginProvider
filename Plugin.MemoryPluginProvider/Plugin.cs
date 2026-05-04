@@ -100,9 +100,9 @@ namespace Plugin.MemoryPluginProvider
 										this.Assemblies.Add(assemblyName, assembly);
 										return assembly;
 									}
-								} catch(Exception)//We skip all errors. We resolve the library, not deal with plugins.
+								} catch(Exception)
 								{
-									continue;
+									//We skip all errors. We resolve the library, not deal with plugins.
 								}
 			}
 
